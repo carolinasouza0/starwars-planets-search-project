@@ -1,13 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import fetchPlanets from '../services/fetchPlanets';
+import React, { useContext } from 'react';
+import PlanetsContext from '../context/PlanetsContext';
 
 function Table() {
-  const [planets, setPlanets] = useState([]);
-
-  useEffect(() => {
-    fetchPlanets().then((data) => setPlanets(data.results));
-  }, []);
-
+  const { newArray } = useContext(PlanetsContext);
   return (
     <section>
       <table>
@@ -29,7 +24,7 @@ function Table() {
           </tr>
         </thead>
         <tbody className="tbody">
-          {planets.map(
+          {newArray.map(
             ({
               name,
               climate,
@@ -64,9 +59,7 @@ function Table() {
           )}
         </tbody>
       </table>
-
     </section>
   );
 }
-
 export default Table;
