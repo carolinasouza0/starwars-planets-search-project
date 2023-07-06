@@ -5,6 +5,8 @@ export default function SelectFilters() {
   const {
     setFilterByNumber,
     filterByNumber,
+    setNewArray,
+    planets,
   } = useContext(PlanetsContext);
 
   console.log(filterByNumber);
@@ -29,6 +31,17 @@ export default function SelectFilters() {
       .map((option) => (
         <option key={ option }>{option}</option>
       ));
+  };
+
+  const removeFilter = (column) => {
+    const newFilter = filterByNumber.filter((item) => item.column !== column);
+    setFilterByNumber(newFilter);
+    setNewArray(planets);
+  };
+
+  const removeAllFilters = () => {
+    setFilterByNumber([]);
+    setNewArray(planets);
   };
 
   const handleClick = () => {
@@ -71,6 +84,26 @@ export default function SelectFilters() {
           onClick={ handleClick }
         >
           Filtrar
+        </button>
+        { filterByNumber.map((item) => (
+          <div key={ item.column } data-testid="filter">
+            <p>
+              { `Filtro: ${item.column} ${item.comparison} ${item.value}` }
+            </p>
+            <button
+              type="button"
+              onClick={ () => removeFilter(item.column) }
+            >
+              X
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          data-testid="button-remove-filters"
+          onClick={ removeAllFilters }
+        >
+          Remover filtros
         </button>
       </form>
     </section>
