@@ -1,5 +1,6 @@
 import { useContext } from 'react';
 import PlanetsContext from '../context/PlanetsContext';
+import SelectFilters from './SelectFilters';
 
 function Header() {
   const { filteredPlanets } = useContext(PlanetsContext);
@@ -13,6 +14,7 @@ function Header() {
           onChange={ (e) => filteredPlanets(e.target.value) }
         />
       </form>
+      <SelectFilters />
     </header>
   );
 }
