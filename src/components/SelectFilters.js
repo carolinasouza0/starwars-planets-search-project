@@ -85,6 +85,7 @@ export default function SelectFilters() {
         >
           Filtrar
         </button>
+
         { filterByNumber.map((item) => (
           <div key={ item.column } data-testid="filter">
             <p>
