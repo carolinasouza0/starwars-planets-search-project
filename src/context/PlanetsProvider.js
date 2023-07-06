@@ -52,14 +52,13 @@ function PlanetsProvider({ children }) {
       const { results } = await fetchPlanets();
       setPlanets(results);
       setNewArray(results);
-    //   settingFilters(results);
     };
 
     getPlanets();
   }, []);
 
   useEffect(() => {
-    settingFilters(planets);
+    settingFilters(newArray);
   }, [filterByNumber]);
 
   const context = {

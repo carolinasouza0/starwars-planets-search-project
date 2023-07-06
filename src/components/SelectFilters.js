@@ -14,6 +14,7 @@ export default function SelectFilters() {
     value: 0,
   });
 
+  const usedOptions = filterByNumber.map((item) => item.column);
   const options = [
     'population',
     'orbital_period',
@@ -22,8 +23,21 @@ export default function SelectFilters() {
     'surface_water',
   ];
 
+  const disponibleOptions = () => {
+    const optDisp = options.filter((item) => !usedOptions.includes(item));
+    return optDisp
+      .map((option) => (
+        <option key={ option }>{option}</option>
+      ));
+  };
+
   const handleClick = () => {
     setFilterByNumber([...filterByNumber, filterObj]);
+    setFilterObj({
+      column: 'population',
+      comparison: 'maior que',
+      value: 0,
+    });
   };
 
   return (
@@ -34,9 +48,7 @@ export default function SelectFilters() {
           data-testid="column-filter"
           onChange={ (e) => setFilterObj({ ...filterObj, column: e.target.value }) }
         >
-          {options.map((option) => (
-            <option key={ option }>{option}</option>
-          ))}
+          {disponibleOptions()}
         </select>
         <select
           name="comparison-filter"
