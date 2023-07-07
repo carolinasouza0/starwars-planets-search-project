@@ -43,11 +43,6 @@ function PlanetsProvider({ children }) {
     const columnValueA = getValue(a[column]);
     const columnValueB = getValue(b[column]);
 
-    if (column === 'name') {
-      const nameComparison = a.name.localeCompare(b.name);
-      return sort === 'ASC' ? nameComparison : -nameComparison;
-    }
-
     if (columnValueA === 'unknown') {
       return columnValueB === 'unknown' ? 0 : 1;
     }

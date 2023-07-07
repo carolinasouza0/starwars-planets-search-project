@@ -13,6 +13,12 @@ const COMPARISON_FILTER_SELECTOR = 'comparison-filter';
 const VALUE_FILTER_SELECTOR = 'value-filter';
 const BUTTON_FILTER_SELECTOR = 'button-filter';
 const REMOVE_FILTER_SELECTOR = 'filter';
+const REMOVE_ALL_FILTERS_SELECTOR = 'button-remove-filters';
+const SORT_COLUMN_SELECTOR = 'column-sort';
+const SORT_ORDER_ASC_SELECTOR = 'column-sort-input-asc';
+const SORT_ORDER_DESC_SELECTOR = 'column-sort-input-desc';
+const SORT_APPLY_SELECTOR = 'column-sort-button';
+const PLANET_NAME_SELECTOR = 'planet-name';
 
 describe('Testa a requisição para o endpoint `/planets` da API de Star Wars', () => {
   beforeEach(() => {
@@ -232,4 +238,127 @@ describe('Testa a filtragem da tabela a partir do nome do planeta', () => {
 
             expect(await screen.findAllByRole(ROW_ROLE_SELECTOR)).toHaveLength(11);
         });
+
+        it('Ao adicionar 3 filtros, testa o botão de remover todos os filtros', async () => {
+            await act(async () => {
+                render(<App />);
+            });
+            
+            expect(await screen.findAllByRole(ROW_ROLE_SELECTOR)).toHaveLength(11);
+
+            userEvent.selectOptions(await screen.findByTestId(COLUMN_FILTER_SELECTOR), 'population');
+            userEvent.selectOptions(await screen.findByTestId(COMPARISON_FILTER_SELECTOR), 'maior que');
+            userEvent.type(await screen.findByTestId(VALUE_FILTER_SELECTOR), '1000000');
+            userEvent.click(await screen.findByTestId(BUTTON_FILTER_SELECTOR));
+
+            userEvent.selectOptions(await screen.findByTestId(COLUMN_FILTER_SELECTOR), 'diameter');
+            userEvent.selectOptions(await screen.findByTestId(COMPARISON_FILTER_SELECTOR), 'menor que');
+            userEvent.type(await screen.findByTestId(VALUE_FILTER_SELECTOR), '15000');
+            userEvent.click(await screen.findByTestId(BUTTON_FILTER_SELECTOR));
+
+            userEvent.selectOptions(await screen.findByTestId(COLUMN_FILTER_SELECTOR), 'orbital_period');
+            userEvent.selectOptions(await screen.findByTestId(COMPARISON_FILTER_SELECTOR), 'igual a');
+            userEvent.type(await screen.findByTestId(VALUE_FILTER_SELECTOR), '4900');
+            userEvent.click(await screen.findByTestId(BUTTON_FILTER_SELECTOR));
+
+            expect(await screen.findAllByRole(ROW_ROLE_SELECTOR)).toHaveLength(1);
+
+            userEvent.click(await screen.findByTestId(REMOVE_ALL_FILTERS_SELECTOR));
+
+            expect(await screen.findAllByRole(ROW_ROLE_SELECTOR)).toHaveLength(11);
+        });
   });
+
+  describe('Testa a ordenação da tabela', () => {
+    beforeEach(() => {
+        global.fetch = jest.fn(dataTest);
+      });
+
+      it('Ordena a tabela pela em ordem crescente', async () => {
+        await act(async () => {
+            render(<App />);
+        });
+        
+        expect(await screen.findAllByRole(ROW_ROLE_SELECTOR)).toHaveLength(11);
+
+        userEvent.selectOptions(await screen.findByTestId(SORT_COLUMN_SELECTOR), 'population');
+        userEvent.click(await screen.findByTestId(SORT_ORDER_ASC_SELECTOR));
+        userEvent.click(await screen.findByTestId(SORT_APPLY_SELECTOR));
+
+        const expected = ['Yavin IV', 'Tatooine', 'Bespin', 'Endor', 'Kamino', 'Alderaan', 'Naboo', 'Coruscant', 'Hoth', 'Dagobah'];
+        const planetNameSortedAscTable = await screen.findAllByTestId(PLANET_NAME_SELECTOR);
+        const planetNameSortedAscTableText = planetNameSortedAscTable.map((planet) => planet.textContent);
+        expect(planetNameSortedAscTableText).toEqual(expected);
+      });
+  
+      it('Ordena a tabela pela em ordem decrescente', async () => {
+        await act(async () => {
+            render(<App />);
+        });
+        
+        expect(await screen.findAllByRole(ROW_ROLE_SELECTOR)).toHaveLength(11);
+
+        userEvent.selectOptions(await screen.findByTestId(SORT_COLUMN_SELECTOR), 'orbital_period');
+        userEvent.click(await screen.findByTestId(SORT_ORDER_DESC_SELECTOR));
+        userEvent.click(await screen.findByTestId(SORT_APPLY_SELECTOR));
+
+        const expected = ['Bespin', 'Yavin IV', 'Hoth', 'Kamino', 'Endor', 'Coruscant', 'Alderaan', 'Dagobah', 'Naboo', 'Tatooine'];
+        const planetNameSortedDescTable = await screen.findAllByTestId(PLANET_NAME_SELECTOR);
+        const planetNameSortedDescTableText = planetNameSortedDescTable.map((planet) => planet.textContent);
+        expect(planetNameSortedDescTableText).toEqual(expected);
+      });
+
+      it('Ordena a tabela pela em ordem crescente e depois em ordem decrescente', async () => {
+        await act(async () => {
+            render(<App />);
+        });
+        
+        expect(await screen.findAllByRole(ROW_ROLE_SELECTOR)).toHaveLength(11);
+
+        userEvent.selectOptions(await screen.findByTestId(SORT_COLUMN_SELECTOR), 'population');
+        userEvent.click(await screen.findByTestId(SORT_ORDER_ASC_SELECTOR));
+        userEvent.click(await screen.findByTestId(SORT_APPLY_SELECTOR));
+
+        const expected = ['Yavin IV', 'Tatooine', 'Bespin', 'Endor', 'Kamino', 'Alderaan', 'Naboo', 'Coruscant', 'Hoth', 'Dagobah'];
+        const planetNameSortedAscTable = await screen.findAllByTestId(PLANET_NAME_SELECTOR);
+        const planetNameSortedAscTableText = planetNameSortedAscTable.map((planet) => planet.textContent);
+        expect(planetNameSortedAscTableText).toEqual(expected);
+
+        userEvent.selectOptions(await screen.findByTestId(SORT_COLUMN_SELECTOR), 'orbital_period');
+        userEvent.click(await screen.findByTestId(SORT_ORDER_DESC_SELECTOR));
+        userEvent.click(await screen.findByTestId(SORT_APPLY_SELECTOR));
+
+        const expected2 = ['Bespin', 'Yavin IV', 'Hoth', 'Kamino', 'Endor', 'Coruscant', 'Alderaan', 'Dagobah', 'Naboo', 'Tatooine'];
+        const planetNameSortedDescTable = await screen.findAllByTestId(PLANET_NAME_SELECTOR);
+        const planetNameSortedDescTableText = planetNameSortedDescTable.map((planet) => planet.textContent);
+        expect(planetNameSortedDescTableText).toEqual(expected2);
+      });
+
+      it('Ordena a tabela pela em ordem decrescente e depois em ordem crescente', async () => {
+        await act(async () => {
+            render(<App />);
+        });
+        
+        expect(await screen.findAllByRole(ROW_ROLE_SELECTOR)).toHaveLength(11);
+
+        userEvent.selectOptions(await screen.findByTestId(SORT_COLUMN_SELECTOR), 'population');
+        userEvent.click(await screen.findByTestId(SORT_ORDER_DESC_SELECTOR));
+        userEvent.click(await screen.findByTestId(SORT_APPLY_SELECTOR));
+
+        const expected = ['Dagobah', 'Hoth', 'Coruscant', 'Naboo', 'Alderaan', 'Kamino', 'Endor', 'Bespin', 'Tatooine', 'Yavin IV'];
+        const planetNameSortedDescTable = await screen.findAllByTestId(PLANET_NAME_SELECTOR);
+        const planetNameSortedDescTableText = planetNameSortedDescTable.map((planet) => planet.textContent);
+        expect(planetNameSortedDescTableText).toEqual(expected);
+
+        userEvent.selectOptions(await screen.findByTestId(SORT_COLUMN_SELECTOR), 'orbital_period');
+        userEvent.click(await screen.findByTestId(SORT_ORDER_ASC_SELECTOR));
+        userEvent.click(await screen.findByTestId(SORT_APPLY_SELECTOR));
+
+        const expected2 = ['Tatooine', 'Naboo', 'Dagobah', 'Alderaan', 'Coruscant', 'Endor', 'Kamino', 'Hoth', 'Yavin IV', 'Bespin'];
+        const planetNameSortedAscTable = await screen.findAllByTestId(PLANET_NAME_SELECTOR);
+        const planetNameSortedAscTableText = planetNameSortedAscTable.map((planet) => planet.textContent);
+        expect(planetNameSortedAscTableText).toEqual(expected2);
+      });
+  });
+         
+        
