@@ -42,7 +42,7 @@ function Table() {
               url,
             }) => (
               <tr className="tr" key={ name }>
-                <td className="td">{name}</td>
+                <td className="td" data-testid="planet-name">{name}</td>
                 <td className="td">{climate}</td>
                 <td className="td">{terrain}</td>
                 <td className="td">{gravity}</td>

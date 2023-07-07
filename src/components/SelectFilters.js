@@ -7,6 +7,7 @@ export default function SelectFilters() {
     filterByNumber,
     setNewArray,
     planets,
+    setSortOrder,
   } = useContext(PlanetsContext);
 
   console.log(filterByNumber);
@@ -24,6 +25,9 @@ export default function SelectFilters() {
     'rotation_period',
     'surface_water',
   ];
+
+  const [sortOption, setSortOption] = useState('ASC');
+  const [sortColumn, setSortColumn] = useState('population');
 
   const disponibleOptions = () => {
     const optDisp = options.filter((item) => !usedOptions.includes(item));
@@ -51,6 +55,10 @@ export default function SelectFilters() {
       comparison: 'maior que',
       value: 0,
     });
+  };
+
+  const orderColumn = () => {
+    setSortOrder({ column: sortColumn, sort: sortOption });
   };
 
   return (
@@ -85,7 +93,45 @@ export default function SelectFilters() {
         >
           Filtrar
         </button>
-
+        <select
+          name="column-filter"
+          className="btn btn-dark"
+          data-testid="column-sort"
+          onChange={ (e) => setSortColumn(e.target.value) }
+        >
+          {options.map((option) => (
+            <option key={ option }>{option}</option>
+          ))}
+        </select>
+        <label htmlFor="ASC">
+          Ascendente
+          <input
+            type="radio"
+            data-testid="column-sort-input-asc"
+            name="order"
+            value="ASC"
+            id="ASC"
+            onChange={ (e) => setSortOption(e.target.value) }
+          />
+        </label>
+        <label htmlFor="DESC">
+          Descendente
+          <input
+            type="radio"
+            data-testid="column-sort-input-desc"
+            name="order"
+            value="DESC"
+            id="DESC"
+            onChange={ (e) => setSortOption(e.target.value) }
+          />
+        </label>
+        <button
+          type="button"
+          data-testid="column-sort-button"
+          onClick={ orderColumn }
+        >
+          Ordenar
+        </button>
         { filterByNumber.map((item) => (
           <div key={ item.column } data-testid="filter">
             <p>

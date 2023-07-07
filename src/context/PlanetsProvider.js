@@ -8,10 +8,15 @@ function PlanetsProvider({ children }) {
   const [planets, setPlanets] = useState([]);
   const [newArray, setNewArray] = useState([]);
   const [filterByNumber, setFilterByNumber] = useState([]);
+  const [sortOrder, setSortOrder] = useState({
+    column: 'name',
+    sort: 'ASC',
+  });
 
   const [filters, setFilters] = useState({
     filterByName: { name: '' },
     filterByNumber: [],
+    order: sortOrder,
   });
 
   const filteredPlanets = (inputChange) => {
@@ -19,31 +24,57 @@ function PlanetsProvider({ children }) {
     setNewArray(filtered);
   };
 
+  const filterPlanets = (allPlanets, { column, comparison, value }) => {
+    const filterMap = {
+      'maior que': (planet) => Number(planet[column]) > Number(value),
+      'menor que': (planet) => Number(planet[column]) < Number(value),
+      'igual a': (planet) => Number(planet[column]) === Number(value),
+    };
+
+    return allPlanets.filter(filterMap[comparison]);
+  };
+
+  const compareColumns = (a, b, column, sort) => {
+    const numericColumns = [
+      'population', 'orbital_period', 'diameter', 'rotation_period', 'surface_water'];
+    const negative = -1;
+    const getValue = (value) => (numericColumns.includes(value) ? Number(value) : value);
+
+    const columnValueA = getValue(a[column]);
+    const columnValueB = getValue(b[column]);
+
+    if (column === 'name') {
+      const nameComparison = a.name.localeCompare(b.name);
+      return sort === 'ASC' ? nameComparison : -nameComparison;
+    }
+
+    if (columnValueA === 'unknown') {
+      return columnValueB === 'unknown' ? 0 : 1;
+    }
+
+    if (columnValueB === 'unknown') {
+      return negative;
+    }
+
+    const comparison = (columnValueA - columnValueB) * (sort === 'ASC' ? 1 : negative);
+
+    return comparison;
+  };
+
+  const sortPlanets = (planet, order) => planet.sort(
+    (a, b) => compareColumns(a, b, order.column, order.sort),
+  );
+
   const settingFilters = (results) => {
-    const ZERO = 0;
     let filteredArray = [...results];
 
-    if (filterByNumber.length !== ZERO) {
+    if (filterByNumber.length > 0) {
       filterByNumber.forEach((item) => {
-        const { column, comparison, value } = item;
-        switch (comparison) {
-        case 'maior que':
-          filteredArray = filteredArray
-            .filter((planet) => Number(planet[column]) > Number(value));
-          break;
-        case 'menor que':
-          filteredArray = filteredArray
-            .filter((planet) => Number(planet[column]) < Number(value));
-          break;
-        case 'igual a':
-          filteredArray = filteredArray
-            .filter((planet) => Number(planet[column]) === Number(value));
-          break;
-        default:
-          break;
-        }
+        filteredArray = filterPlanets(filteredArray, item);
       });
     }
+
+    filteredArray = sortPlanets(filteredArray, sortOrder);
     setNewArray(filteredArray);
   };
 
@@ -59,7 +90,7 @@ function PlanetsProvider({ children }) {
 
   useEffect(() => {
     settingFilters(newArray);
-  }, [filterByNumber]);
+  }, [filterByNumber, sortOrder]);
 
   const context = {
     planets,
@@ -74,6 +105,8 @@ function PlanetsProvider({ children }) {
     filterByNumber,
     setFilterByNumber,
     settingFilters,
+    sortOrder,
+    setSortOrder,
   };
 
   return (
